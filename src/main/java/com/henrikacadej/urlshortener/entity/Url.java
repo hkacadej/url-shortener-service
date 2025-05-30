@@ -16,10 +16,11 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class Url {
 
-    @Id
+
     @Column(name = "original_url", nullable = false, columnDefinition = "TEXT")
     private String originalUrl;
 
+    @Id
     @Column(name = "short_code", nullable = false, unique = true, length = 10)
     private String shortCode;
 

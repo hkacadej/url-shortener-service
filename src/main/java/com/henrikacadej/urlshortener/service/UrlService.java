@@ -3,11 +3,13 @@ package com.henrikacadej.urlshortener.service;
 import com.henrikacadej.urlshortener.dto.ShortUrlRequest;
 import com.henrikacadej.urlshortener.dto.ShortUrlResponse;
 import com.henrikacadej.urlshortener.entity.Url;
+import com.henrikacadej.urlshortener.exception.UrlNotFoundException;
 import com.henrikacadej.urlshortener.repository.UrlRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -29,7 +31,7 @@ public class UrlService {
 
     private Url shortenUrl(String originalUrl) {
         return urlRepository
-                .findByOriginalUrlAndExpirationTimeAfter(originalUrl, LocalDateTime.now())
+                .findByOriginalUrl(originalUrl)
                 .map(this::renewUrl).orElseGet(() -> createUrl(originalUrl));
     }
 
@@ -48,5 +50,26 @@ public class UrlService {
                 .shortCode(generateShortCode())
                 .originalUrl(originalUrl)
                 .build();
+    }
+
+    public Optional<Url> getUrl(String shortCode){
+        return urlRepository.findById(shortCode);
+    }
+
+    public String getUrl2(String shortCode){
+        return getUrl(shortCode)
+                .map(
+                        url -> {
+                            if (isUrlExpired(url)){
+                                throw new UrlNotFoundException("Requested Url is expired");
+                            }
+                            return url.getShortCode();
+                        }
+                )
+                .orElseThrow(() -> new UrlNotFoundException("Short URL not found"));
+    }
+
+    private boolean isUrlExpired(Url url){
+        return url.getExpirationTime().isBefore(LocalDateTime.now());
     }
 }
