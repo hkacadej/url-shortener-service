@@ -45,11 +45,16 @@ public class UrlService {
     }
 
     private Url createUrl(String originalUrl){
-        return Url.builder()
+
+        Url url = Url.builder()
                 .expirationTime(LocalDateTime.now().plusMinutes(defaultExpirationMinutes))
                 .shortCode(generateShortCode())
                 .originalUrl(originalUrl)
+                .clickCount(0L)
                 .build();
+
+        return urlRepository.save(url);
+
     }
 
     public Optional<Url> getUrl(String shortCode){
@@ -63,7 +68,7 @@ public class UrlService {
                             if (isUrlExpired(url)){
                                 throw new UrlNotFoundException("Requested Url is expired");
                             }
-                            return url.getShortCode();
+                            return url.getOriginalUrl();
                         }
                 )
                 .orElseThrow(() -> new UrlNotFoundException("Short URL not found"));

@@ -3,27 +3,32 @@ package com.henrikacadej.urlshortener.handler;
 
 import com.henrikacadej.urlshortener.exception.RedirectException;
 import com.henrikacadej.urlshortener.exception.UrlNotFoundException;
-import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import java.io.IOException;
+import java.util.Map;
 
-@ControllerAdvice
+@RestControllerAdvice
 public class GlobalExceptionHandler {
 
+    @ResponseStatus(HttpStatus.NOT_FOUND)
     @ExceptionHandler(UrlNotFoundException.class)
-    public void handleUrlNotFound(UrlNotFoundException ex, HttpServletResponse response) throws IOException {
-        response.sendError(HttpServletResponse.SC_NOT_FOUND, ex.getMessage());
+    public Map<String, String> handleUrlNotFound(UrlNotFoundException ex) {
+        return Map.of("error", ex.getMessage());
     }
 
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     @ExceptionHandler(RedirectException.class)
-    public void handleRedirectError(RedirectException ex, HttpServletResponse response) throws IOException {
-        response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Internal redirect error");
+    public Map<String, String> handleRedirectError(RedirectException ex) {
+        return Map.of("error", "Internal redirect error");
     }
 
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     @ExceptionHandler(Exception.class)
-    public void handleGenericError(Exception ex, HttpServletResponse response) throws IOException {
-        response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "An unexpected error occurred");
+    public Map<String, String> handleGenericError(Exception ex) {
+        return Map.of("error", "An unexpected error occurred");
     }
 }
+
