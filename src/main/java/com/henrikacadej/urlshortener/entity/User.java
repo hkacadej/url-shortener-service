@@ -17,6 +17,7 @@ import java.util.Collection;
 @AllArgsConstructor
 @Getter
 @Setter
+@Builder
 public class User implements UserDetails {
 
     @Id
@@ -40,6 +41,9 @@ public class User implements UserDetails {
 
     @Column(nullable = false)
     private boolean credentialsNonExpired = true;
+
+    @Column(nullable = false)
+    private String password;
 
 
     @Override

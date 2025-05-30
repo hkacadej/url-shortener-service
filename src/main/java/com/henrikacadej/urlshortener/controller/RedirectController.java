@@ -21,7 +21,7 @@ public class RedirectController {
 
     private final UrlService urlService;
 
-    @GetMapping("/{id}")
+    @GetMapping({"/{id}","/api/{id}"})
     public ResponseEntity<?> redirect(@PathVariable String id, HttpServletResponse response) {
 
         return ResponseEntity.status(HttpStatus.FOUND)

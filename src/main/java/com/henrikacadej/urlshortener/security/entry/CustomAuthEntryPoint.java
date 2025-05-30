@@ -19,8 +19,15 @@ public class CustomAuthEntryPoint implements AuthenticationEntryPoint {
                     response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Malformed JWT token");
             case io.jsonwebtoken.security.SignatureException signatureException ->
                     response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid JWT signature");
-            case null, default ->
-                    response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized: " + authException.getMessage());
+            case null, default -> {
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                response.setContentType("application/json");
+                response.getWriter().write("{\"error\": \"Authentication required\"}");
+            }
         }
+
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        response.setContentType("application/json");
+        response.getWriter().write("{\"error\": \"Authentication required\"}");
     }
 }
