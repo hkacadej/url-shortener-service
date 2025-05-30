@@ -2,9 +2,16 @@ package com.henrikacadej.urlshortener.repository;
 
 import com.henrikacadej.urlshortener.entity.Url;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.Optional;
 
 public interface UrlRepository extends JpaRepository<Url, String> {
     public Optional<Url> findByOriginalUrl(String originalUrl);
+
+    @Modifying
+    @Query("UPDATE Url e SET e.clickCount = e.clickCount + 1 WHERE e.shortUrl = :shortUrl")
+    void incrementCounter(@Param("shortUrl") String shortUrl);
 }

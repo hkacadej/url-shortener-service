@@ -4,9 +4,11 @@ import com.henrikacadej.urlshortener.dto.ShortUrlRequest;
 import com.henrikacadej.urlshortener.dto.ShortUrlResponse;
 import com.henrikacadej.urlshortener.entity.Url;
 import com.henrikacadej.urlshortener.exception.UrlNotFoundException;
+import com.henrikacadej.urlshortener.kafka.producer.KafkaProducerService;
 import com.henrikacadej.urlshortener.repository.UrlRepository;
 import com.henrikacadej.urlshortener.repository.UserRepository;
-import lombok.RequiredArgsConstructor;
+import jakarta.transaction.Transactional;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -15,20 +17,25 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Service
+@Slf4j
+@Transactional
 public class UrlService {
 
     private final UrlRepository urlRepository;
+    private final KafkaProducerService kafkaProducerService;
 
     @Value("${url.expiration.minutes}")
     private long defaultExpirationMinutes;
 
-    public UrlService(UrlRepository urlRepository, UserRepository userRepository) {
+    public UrlService(UrlRepository urlRepository, KafkaProducerService kafkaProducerService) {
         this.urlRepository = urlRepository;
+        this.kafkaProducerService = kafkaProducerService;
     }
 
+    @Transactional
     public ShortUrlResponse getShortUrl(ShortUrlRequest request){
-        Url short2 = shortenUrl(request.shortUrl());
-        return new ShortUrlResponse(short2.getShortCode(),short2.getExpirationTime());
+        Url shortened = shortenUrl(request.shortUrl());
+        return new ShortUrlResponse(shortened.getShortUrl(),shortened.getExpirationTime());
     }
 
     private Url shortenUrl(String originalUrl) {
@@ -43,6 +50,7 @@ public class UrlService {
 
     Url renewUrl(Url url) {
         url.setExpirationTime(LocalDateTime.now().plusMinutes(defaultExpirationMinutes));
+        log.info("Renewing url: {}", url);
         return urlRepository.save(url);
     }
 
@@ -50,14 +58,16 @@ public class UrlService {
 
         Url url = Url.builder()
                 .expirationTime(LocalDateTime.now().plusMinutes(defaultExpirationMinutes))
-                .shortCode(generateShortCode())
+                .shortUrl(generateShortCode())
                 .originalUrl(originalUrl)
                 .clickCount(0L)
                 .build();
 
+        log.info("Created url: {}", url);
         return urlRepository.save(url);
     }
 
+    @Transactional
     public Url saveUrl(Url url){
         return urlRepository.save(url);
     }
@@ -71,8 +81,11 @@ public class UrlService {
                 .map(
                         url -> {
                             if (isUrlExpired(url)){
+                                log.info("Url expired for shortCode: {} and Url {} ", shortCode, url);
                                 throw new UrlNotFoundException("Requested Url is expired");
                             }
+                            kafkaProducerService.send(url.getShortUrl());
+                            log.info("Returning Url: {}", url);
                             return url.getOriginalUrl();
                         }
                 )
@@ -81,5 +94,10 @@ public class UrlService {
 
     boolean isUrlExpired(Url url){
         return url.getExpirationTime().isBefore(LocalDateTime.now());
+    }
+
+    @Transactional
+    public void incrementClickCount(String shortUrl) {
+        urlRepository.incrementCounter(shortUrl);
     }
 }

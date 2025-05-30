@@ -182,7 +182,7 @@ class UrlServiceTest {
         // Assert
         assertNotNull(result);
         assertEquals(ORIGINAL_URL, result.getOriginalUrl());
-        assertEquals("newCode", result.getShortCode());
+        assertEquals("newCode", result.getShortUrl());
         assertEquals(0L, result.getClickCount());
         assertNotNull(result.getExpirationTime());
         verify(urlRepository).save(any(Url.class));

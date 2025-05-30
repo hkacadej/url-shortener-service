@@ -2,10 +2,7 @@ package com.henrikacadej.urlshortener.entity;
 
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
@@ -14,15 +11,15 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Builder
 @AllArgsConstructor
+@ToString
 public class Url {
-
 
     @Column(name = "original_url", nullable = false, columnDefinition = "TEXT")
     private String originalUrl;
 
     @Id
     @Column(name = "short_code", nullable = false, unique = true, length = 10)
-    private String shortCode;
+    private String shortUrl;
 
     @Column(name = "expiration_time", nullable = false)
     private LocalDateTime expirationTime;

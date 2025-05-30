@@ -7,6 +7,7 @@ import com.henrikacadej.urlshortener.repository.UserRepository;
 import com.henrikacadej.urlshortener.util.JwtUtil;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import com.henrikacadej.urlshortener.entity.User;
@@ -16,6 +17,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class AuthService {
 
     private final UserRepository userRepository;
@@ -26,6 +28,7 @@ public class AuthService {
     @Transactional
     public AuthenticationResponse register(RegisterRequest request) {
         if (userRepository.existsByEmail(request.email())) {
+            log.info("Email address already in use");
             throw new RuntimeException("Email already registered");
         }
 
@@ -37,12 +40,12 @@ public class AuthService {
                 .enabled(true)
                 .build();
 
+        log.info("Registering user");
         userRepository.save(user);
 
         var accessToken = jwtUtil.createToken(user.getEmail());
 
         return new AuthenticationResponse(accessToken);
-
     }
 
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
@@ -58,6 +61,7 @@ public class AuthService {
 
         var accessToken = jwtUtil.createToken(user.getEmail());
 
+        log.info("Authenticated user {}", user.getEmail());
         return new AuthenticationResponse(accessToken);
     }
 
