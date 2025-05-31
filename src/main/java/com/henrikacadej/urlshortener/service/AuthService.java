@@ -33,11 +33,14 @@ public class AuthService {
         }
 
         var user = User.builder()
-                .name("request.getFirstName()")
-                .email("s")
+                .name(request.name())
+                .email(request.email())
                 .password(passwordEncoder.encode(request.password()))
                 .roles("USER")
                 .enabled(true)
+                .accountNonExpired(true)
+                .accountNonLocked(true)
+                .credentialsNonExpired(true)
                 .build();
 
         log.info("Registering user");

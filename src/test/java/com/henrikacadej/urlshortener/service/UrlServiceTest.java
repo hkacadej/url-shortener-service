@@ -82,33 +82,6 @@ class UrlServiceTest {
         verify(urlRepository).save(any(Url.class));
     }
 
-    @Test
-    void getUrl_WhenShortCodeExists_ShouldReturnUrl() {
-        // Arrange
-        Url url = createUrlEntity(SHORT_CODE, ORIGINAL_URL, LocalDateTime.now().plusMinutes(30));
-        when(urlRepository.findById(SHORT_CODE)).thenReturn(Optional.of(url));
-
-        // Act
-        Optional<Url> result = urlService.getUrl(SHORT_CODE);
-
-        // Assert
-        assertTrue(result.isPresent());
-        assertEquals(url, result.get());
-        verify(urlRepository).findById(SHORT_CODE);
-    }
-
-    @Test
-    void getUrl_WhenShortCodeDoesNotExist_ShouldReturnEmpty() {
-        // Arrange
-        when(urlRepository.findById(SHORT_CODE)).thenReturn(Optional.empty());
-
-        // Act
-        Optional<Url> result = urlService.getUrl(SHORT_CODE);
-
-        // Assert
-        assertTrue(result.isEmpty());
-        verify(urlRepository).findById(SHORT_CODE);
-    }
 
     @Test
     void getUrl2_WhenUrlExistsAndNotExpired_ShouldReturnOriginalUrl() {
@@ -117,7 +90,7 @@ class UrlServiceTest {
         when(urlRepository.findById(SHORT_CODE)).thenReturn(Optional.of(url));
 
         // Act
-        String result = urlService.getUrl2(SHORT_CODE);
+        String result = urlService.getUrl(SHORT_CODE);
 
         // Assert
         assertEquals(ORIGINAL_URL, result);
@@ -125,7 +98,7 @@ class UrlServiceTest {
     }
 
     @Test
-    void getUrl2_WhenUrlExistsButExpired_ShouldThrowUrlNotFoundException() {
+    void getUrl_WhenUrlExistsButExpired_ShouldThrowUrlNotFoundException() {
         // Arrange
         Url expiredUrl = createUrlEntity(SHORT_CODE, ORIGINAL_URL, LocalDateTime.now().minusMinutes(30));
         when(urlRepository.findById(SHORT_CODE)).thenReturn(Optional.of(expiredUrl));
@@ -133,21 +106,21 @@ class UrlServiceTest {
         // Act & Assert
         UrlNotFoundException exception = assertThrows(
                 UrlNotFoundException.class,
-                () -> urlService.getUrl2(SHORT_CODE)
+                () -> urlService.getUrl(SHORT_CODE)
         );
         assertEquals("Requested Url is expired", exception.getMessage());
         verify(urlRepository).findById(SHORT_CODE);
     }
 
     @Test
-    void getUrl2_WhenUrlDoesNotExist_ShouldThrowUrlNotFoundException() {
+    void getUrl_WhenUrlDoesNotExist_ShouldThrowUrlNotFoundException() {
         // Arrange
         when(urlRepository.findById(SHORT_CODE)).thenReturn(Optional.empty());
 
         // Act & Assert
         UrlNotFoundException exception = assertThrows(
                 UrlNotFoundException.class,
-                () -> urlService.getUrl2(SHORT_CODE)
+                () -> urlService.getUrl(SHORT_CODE)
         );
         assertEquals("Short URL not found", exception.getMessage());
         verify(urlRepository).findById(SHORT_CODE);
@@ -249,7 +222,7 @@ class UrlServiceTest {
     // Helper method to create Url entities for testing
     private Url createUrlEntity(String shortCode, String originalUrl, LocalDateTime expirationTime) {
         return Url.builder()
-                .shortCode(shortCode)
+                .shortUrl(shortCode)
                 .originalUrl(originalUrl)
                 .expirationTime(expirationTime)
                 .clickCount(0L)

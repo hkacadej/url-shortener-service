@@ -1,0 +1,32 @@
+<div class="url-list">
+  <h2>Your Shortened URLs</h2>
+
+  @if (urls.length > 0) {
+    <table>
+      <thead>
+        <tr>
+          <th>Short URL</th>
+          <th>Original URL</th>
+          <th>Clicks</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (url of urls; track url.shortUrl) {
+          <tr>
+            <td><a (click)="handleRedirectRequest(url.shortUrl)">
+              {{ url.shortUrl }}
+            </a></td>
+            <td>
+              <span title="{{ url.originalUrl }}">
+                {{ url.originalUrl }}
+              </span>
+            </td>
+            <td>{{ url.clickCount }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  } @else {
+    <p>No URLs shortened yet.</p>
+  }
+</div>

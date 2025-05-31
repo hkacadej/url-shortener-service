@@ -1,4 +1,4 @@
 package com.henrikacadej.urlshortener.dto;
 
-public record ShortUrlRequest(String shortUrl) {
+public record ShortUrlRequest(String url) {
 }
