@@ -1,5 +1,6 @@
 package com.henrikacadej.urlshortener.controller;
 
+import com.henrikacadej.urlshortener.dto.UrlResponse;
 import com.henrikacadej.urlshortener.exception.RedirectException;
 import com.henrikacadej.urlshortener.service.UrlService;
 import jakarta.servlet.http.HttpServletResponse;
@@ -21,13 +22,9 @@ public class RedirectController {
 
     private final UrlService urlService;
 
-    @GetMapping({"/{id}","/api/{id}"})
-    public ResponseEntity<?> redirect(@PathVariable String id, HttpServletResponse response) {
-
-        return ResponseEntity.status(HttpStatus.FOUND)
-                .location(URI.create(urlService.getUrl2(id)))
-                .build();
-
+    @GetMapping({"/{id}"})
+    public ResponseEntity<UrlResponse> redirect(@PathVariable String id) {
+        return ResponseEntity.ok(urlService.getUrl(id));
     }
 
 

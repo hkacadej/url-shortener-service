@@ -1,0 +1,29 @@
+<div class="shorten-form">
+  <h2>Shorten a URL</h2>
+
+  <form (ngSubmit)="shorten()">
+    <label for="originalUrl">Original URL</label>
+    <input
+      type="url"
+      id="originalUrl"
+      [(ngModel)]="originalUrl"
+      name="originalUrl"
+      required
+      placeholder="https://example.com/very/long/url"
+    />
+
+    <button type="submit">Shorten</button>
+  </form>
+
+  @if (shortUrl) {
+    <div class="result">
+      <strong>Short URL:</strong>
+      <a (click)="handleRedirectRequest(shortUrl)">
+        {{ shortUrl }}
+      </a>    </div>
+  }
+
+  @if (error) {
+    <p class="error">{{ error }}</p>
+  }
+</div>

@@ -43,6 +43,8 @@ spring:
 url:
   expiration:
     minutes: 5
+  origin: http://localhost:8080
+  endpoint: /r/
 logging:
   level:
     org:

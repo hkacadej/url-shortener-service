@@ -1,0 +1,37 @@
+@if(isLoggedIn){
+<nav class="navbar">
+  <div class="container">
+    <div class="brand">
+      <svg xmlns="http://www.w3.org/2000/svg" class="brand-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M3 12l2-2 4 4 8-8 2 2-10 10z"/>
+      </svg>
+      URL Shortener
+    </div>
+    <button
+      class="toggle-button"
+      (click)="toggleMenu()"
+      [attr.aria-expanded]="menuActive"
+      aria-label="Toggle menu"
+    >
+      <span [class.bar1]="menuActive"></span>
+      <span [class.bar2]="menuActive"></span>
+      <span [class.bar3]="menuActive"></span>
+    </button>
+    <div [class.active]="menuActive" class="navbar-buttons" role="menu">
+      <button
+        (click)="navigate('/shorten')"
+        role="menuitem"
+        tabindex="0"
+        class="nav-btn"
+      >Shorten URL</button>
+      <button
+        (click)="navigate('/urls')"
+        role="menuitem"
+        tabindex="0"
+        class="nav-btn"
+      >URL List</button>
+      <button (click)="logout()" class="nav-btn logout-btn">Logout</button>
+    </div>
+  </div>
+</nav>
+}

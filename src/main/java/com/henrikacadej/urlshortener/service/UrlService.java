@@ -2,17 +2,19 @@ package com.henrikacadej.urlshortener.service;
 
 import com.henrikacadej.urlshortener.dto.ShortUrlRequest;
 import com.henrikacadej.urlshortener.dto.ShortUrlResponse;
+import com.henrikacadej.urlshortener.dto.UrlResponse;
 import com.henrikacadej.urlshortener.entity.Url;
 import com.henrikacadej.urlshortener.exception.UrlNotFoundException;
 import com.henrikacadej.urlshortener.kafka.producer.KafkaProducerService;
 import com.henrikacadej.urlshortener.repository.UrlRepository;
-import com.henrikacadej.urlshortener.repository.UserRepository;
+import com.henrikacadej.urlshortener.util.UrlMapper;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -27,6 +29,12 @@ public class UrlService {
     @Value("${url.expiration.minutes}")
     private long defaultExpirationMinutes;
 
+    @Value("${url.origin}")
+    private String urlOrigin;
+
+    @Value("${url.endpoint}")
+    private String urlEndpoint;
+
     public UrlService(UrlRepository urlRepository, KafkaProducerService kafkaProducerService) {
         this.urlRepository = urlRepository;
         this.kafkaProducerService = kafkaProducerService;
@@ -34,8 +42,16 @@ public class UrlService {
 
     @Transactional
     public ShortUrlResponse getShortUrl(ShortUrlRequest request){
-        Url shortened = shortenUrl(request.shortUrl());
-        return new ShortUrlResponse(shortened.getShortUrl(),shortened.getExpirationTime());
+        Url shortened = shortenUrl(request.url());
+
+        return new ShortUrlResponse(
+                getFullShortenedUrl(shortened.getShortUrl())
+                ,shortened.getExpirationTime()
+        );
+    }
+
+    String getFullShortenedUrl(String shortCode){
+        return urlOrigin + urlEndpoint + shortCode ;
     }
 
     private Url shortenUrl(String originalUrl) {
@@ -72,12 +88,8 @@ public class UrlService {
         return urlRepository.save(url);
     }
 
-    public Optional<Url> getUrl(String shortCode){
-        return urlRepository.findById(shortCode);
-    }
-
-    public String getUrl2(String shortCode){
-        return getUrl(shortCode)
+    public UrlResponse getUrl(String shortCode){
+        return urlRepository.findById(shortCode)
                 .map(
                         url -> {
                             if (isUrlExpired(url)){
@@ -86,7 +98,7 @@ public class UrlService {
                             }
                             kafkaProducerService.send(url.getShortUrl());
                             log.info("Returning Url: {}", url);
-                            return url.getOriginalUrl();
+                            return UrlMapper.toResponse(url,urlOrigin + urlEndpoint);
                         }
                 )
                 .orElseThrow(() -> new UrlNotFoundException("Short URL not found"));
@@ -99,5 +111,12 @@ public class UrlService {
     @Transactional
     public void incrementClickCount(String shortUrl) {
         urlRepository.incrementCounter(shortUrl);
+    }
+
+    public List<UrlResponse> getUrlList() {
+
+        return UrlMapper.toResponseList(
+                urlRepository.findAllNotExpiredNative(),
+                urlOrigin + urlEndpoint);
     }
 }
