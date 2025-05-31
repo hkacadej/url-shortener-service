@@ -15,7 +15,7 @@ export class ShortUrlComponent {
 
   originalUrl = '';
   shortUrl = '';
-  error = '';
+  errors :String[] = [];
 
   constructor(private http: HttpClient,private urlService: UrlService) {}
 
@@ -29,11 +29,16 @@ export class ShortUrlComponent {
       .subscribe({
         next: (res) => {
           this.shortUrl = res.shortUrl;
-          this.error = '';
+          this.errors = [];
         },
         error: (err) => {
-          this.error = 'Failed to shorten URL';
-          console.error(err);
+          if (err.error && typeof err.error === 'object') {
+            this.errors = Object.values(err.error);
+          } else if (typeof err.error === 'string') {
+            this.errors = [err.error];
+          } else {
+            this.errors = ['Failed to shorten URL'];
+          }
         }
       });
   }

@@ -2,8 +2,10 @@ package com.henrikacadej.urlshortener.service;
 
 import com.henrikacadej.urlshortener.dto.ShortUrlRequest;
 import com.henrikacadej.urlshortener.dto.ShortUrlResponse;
+import com.henrikacadej.urlshortener.dto.UrlResponse;
 import com.henrikacadej.urlshortener.entity.Url;
 import com.henrikacadej.urlshortener.exception.UrlNotFoundException;
+import com.henrikacadej.urlshortener.kafka.producer.KafkaProducerService;
 import com.henrikacadej.urlshortener.repository.UrlRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -11,6 +13,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.time.LocalDateTime;
@@ -21,12 +24,15 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-
+@ActiveProfiles("test")
 @ExtendWith(MockitoExtension.class)
 class UrlServiceTest {
 
     @Mock
     private UrlRepository urlRepository;
+
+    @Mock
+    private KafkaProducerService kafkaProducerService;
 
     @InjectMocks
     private UrlService urlService;
@@ -34,11 +40,15 @@ class UrlServiceTest {
     private static final String ORIGINAL_URL = "https://example.com";
     private static final String SHORT_CODE = "abc12345";
     private static final long DEFAULT_EXPIRATION_MINUTES = 60L;
+    private static final String URL_ORIGIN = "https://my-origin.com";
+    private static final String URL_ENDPOINT = "/r/";
 
     @BeforeEach
     void setUp() {
-        // Set the private field using ReflectionTestUtils
         ReflectionTestUtils.setField(urlService, "defaultExpirationMinutes", DEFAULT_EXPIRATION_MINUTES);
+        ReflectionTestUtils.setField(urlService, "urlOrigin", URL_ORIGIN);
+        ReflectionTestUtils.setField(urlService, "urlEndpoint", URL_ENDPOINT);
+
     }
 
     @Test
@@ -56,7 +66,7 @@ class UrlServiceTest {
 
         // Assert
         assertNotNull(response);
-        assertEquals(SHORT_CODE, response.shortUrl());
+        assertEquals(URL_ORIGIN + URL_ENDPOINT + SHORT_CODE, response.shortUrl());
         assertEquals(renewedUrl.getExpirationTime(), response.expirationDate());
         verify(urlRepository).findByOriginalUrl(ORIGINAL_URL);
         verify(urlRepository).save(existingUrl);
@@ -76,7 +86,7 @@ class UrlServiceTest {
 
         // Assert
         assertNotNull(response);
-        assertEquals(SHORT_CODE, response.shortUrl());
+        assertEquals(URL_ORIGIN + URL_ENDPOINT + SHORT_CODE, response.shortUrl());
         assertEquals(newUrl.getExpirationTime(), response.expirationDate());
         verify(urlRepository).findByOriginalUrl(ORIGINAL_URL);
         verify(urlRepository).save(any(Url.class));
@@ -90,10 +100,10 @@ class UrlServiceTest {
         when(urlRepository.findById(SHORT_CODE)).thenReturn(Optional.of(url));
 
         // Act
-        String result = urlService.getUrl(SHORT_CODE);
+        UrlResponse result = urlService.getUrl(SHORT_CODE);
 
         // Assert
-        assertEquals(ORIGINAL_URL, result);
+        assertEquals(ORIGINAL_URL, result.originalUrl());
         verify(urlRepository).findById(SHORT_CODE);
     }
 

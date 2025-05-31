@@ -9,7 +9,7 @@ import { RegisterRequest } from '../../common/register-request';
   providedIn: 'root'
 })
 export class AuthService {
-  private apiUrl = 'http://localhost:8080/api/auth/v1'; // Replace with your backend URL
+  private apiUrl = 'http://localhost:8080/api/auth/v1'; 
 
   constructor(private http: HttpClient) {}
 

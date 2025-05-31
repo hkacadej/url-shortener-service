@@ -3,8 +3,8 @@ spring:
     name: urlshortener
   security:
     jwt:
-      secret: ${JWT_SECRET}
-      expiration: 4
+      secret: TXlTZWNyZXRLZXlNeVNlY3JldEtleQ==
+      expiration: 360000000
 
   datasource:
     url: jdbc:mysql://localhost:3306/urlShort

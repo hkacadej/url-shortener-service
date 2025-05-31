@@ -3,6 +3,7 @@ package com.henrikacadej.urlshortener.service;
 import com.henrikacadej.urlshortener.dto.AuthenticationRequest;
 import com.henrikacadej.urlshortener.dto.AuthenticationResponse;
 import com.henrikacadej.urlshortener.dto.RegisterRequest;
+import com.henrikacadej.urlshortener.exception.AuthenticationException;
 import com.henrikacadej.urlshortener.repository.UserRepository;
 import com.henrikacadej.urlshortener.util.JwtUtil;
 import jakarta.transaction.Transactional;
@@ -29,7 +30,7 @@ public class AuthService {
     public AuthenticationResponse register(RegisterRequest request) {
         if (userRepository.existsByEmail(request.email())) {
             log.info("Email address already in use");
-            throw new RuntimeException("Email already registered");
+            throw new AuthenticationException("Email already registered");
         }
 
         var user = User.builder()

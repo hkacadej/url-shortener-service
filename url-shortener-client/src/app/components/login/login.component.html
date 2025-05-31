@@ -10,8 +10,10 @@
     <button type="submit">Register</button>
   </form>
 
-  @if (errorMessage) {
-    <p class="error" >{{ errorMessage }}</p>
+  @if (errors) {
+    @for (error of errors; track $index) {
+      <p class="error" >{{ error }}</p>
+    }
   }
 
 

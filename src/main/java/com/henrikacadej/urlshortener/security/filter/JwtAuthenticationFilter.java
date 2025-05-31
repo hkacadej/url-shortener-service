@@ -1,6 +1,7 @@
 package com.henrikacadej.urlshortener.security.filter;
 
 import com.henrikacadej.urlshortener.util.JwtUtil;
+import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -39,26 +40,34 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             filterChain.doFilter(request, response);
             return;
         }
+        try {
+            jwt = authHeader.substring(7);
+            username = jwtUtil.extractUsername(jwt);
+            log.debug("Found username {}", username);
 
-        jwt = authHeader.substring(7);
-        username = jwtUtil.extractUsername(jwt);
-        log.debug("Found username {}", username);
-
-        log.debug("Attempting to authenticate user {}", username);
-        if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-            log.debug("Found user {}", userDetails.getUsername());
-            if (jwtUtil.validateToken(jwt, userDetails)) {
-                log.debug("Successfully authenticated user {}", username);
-                UsernamePasswordAuthenticationToken authToken =
-                        new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                SecurityContextHolder.getContext().setAuthentication(authToken);
+            log.debug("Attempting to authenticate user {}", username);
+            if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+                log.debug("Found user {}", userDetails.getUsername());
+                if (jwtUtil.validateToken(jwt, userDetails)) {
+                    log.debug("Successfully authenticated user {}", username);
+                    UsernamePasswordAuthenticationToken authToken =
+                            new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+                    authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                    SecurityContextHolder.getContext().setAuthentication(authToken);
+                }
             }
+
+            log.debug("Done with JwtAuthenticationFilter for user : {}", username);
+            filterChain.doFilter(request, response);
+            filterChain.doFilter(request, response);
+        } catch (ExpiredJwtException ex) {
+            log.error("Expired JWT token {}", ex.getMessage() );
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.setContentType("application/json");
+            response.getWriter().write("{\"error\": \"JWT token expired\"}");
         }
 
-        log.debug("Done with JwtAuthenticationFilter for user : {}", username);
-        filterChain.doFilter(request, response);
     }
 }
 

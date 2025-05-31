@@ -14,7 +14,7 @@ export class RegisterComponent {
   email = '';
   name = '';
   password = '';
-  error = '';
+  errors :String[] = [];
   success = '';
 
   constructor(private authService: AuthService, private router: Router) {}
@@ -29,12 +29,17 @@ export class RegisterComponent {
     this.authService.register(request).subscribe({
       next: () => {
         this.success = 'Registration successful!';
-        this.error = '';
+        this.errors = [];
         this.router.navigate(['/login']);
       },
       error: (err) => {
-        this.error = err.error?.message || 'Registration failed';
-        this.success = '';
+        if (err.error && typeof err.error === 'object') {
+          this.errors = Object.values(err.error);
+        } else if (typeof err.error === 'string') {
+          this.errors = [err.error];
+        } else {
+          this.errors = ['Registration failed'];
+        }
       }
     });
   }

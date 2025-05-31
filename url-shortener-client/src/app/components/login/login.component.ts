@@ -14,7 +14,7 @@ export class LoginComponent {
 
   email = '';
   password = '';
-  errorMessage = '';
+  errors :String[] = [];
 
   constructor(private authService:AuthService,private router : Router ){}
 
@@ -30,8 +30,13 @@ export class LoginComponent {
         this.router.navigate(['/urls']);
       },
       error: (err) => {
-        this.errorMessage = 'Invalid email or password';
-        console.error('Login error', err);
+        if (err.error && typeof err.error === 'object') {
+          this.errors = Object.values(err.error);
+        } else if (typeof err.error === 'string') {
+          this.errors = [err.error];
+        } else {
+          this.errors = ['Invalid email or password'];
+        }
       }
     });
 
