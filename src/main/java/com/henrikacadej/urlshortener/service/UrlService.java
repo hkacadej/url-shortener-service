@@ -15,7 +15,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -41,17 +40,17 @@ public class UrlService {
     }
 
     @Transactional
-    public ShortUrlResponse getShortUrl(ShortUrlRequest request){
+    public ShortUrlResponse getShortUrl(ShortUrlRequest request) {
         Url shortened = shortenUrl(request.url());
 
         return new ShortUrlResponse(
                 getFullShortenedUrl(shortened.getShortUrl())
-                ,shortened.getExpirationTime()
+                , shortened.getExpirationTime()
         );
     }
 
-    String getFullShortenedUrl(String shortCode){
-        return urlOrigin + urlEndpoint + shortCode ;
+    String getFullShortenedUrl(String shortCode) {
+        return urlOrigin + urlEndpoint + shortCode;
     }
 
     private Url shortenUrl(String originalUrl) {
@@ -70,7 +69,7 @@ public class UrlService {
         return urlRepository.save(url);
     }
 
-    Url createUrl(String originalUrl){
+    Url createUrl(String originalUrl) {
 
         Url url = Url.builder()
                 .expirationTime(LocalDateTime.now().plusMinutes(defaultExpirationMinutes))
@@ -84,27 +83,27 @@ public class UrlService {
     }
 
     @Transactional
-    public Url saveUrl(Url url){
+    public Url saveUrl(Url url) {
         return urlRepository.save(url);
     }
 
-    public UrlResponse getUrl(String shortCode){
+    public UrlResponse getUrl(String shortCode) {
         return urlRepository.findById(shortCode)
                 .map(
                         url -> {
-                            if (isUrlExpired(url)){
+                            if (isUrlExpired(url)) {
                                 log.info("Url expired for shortCode: {} and Url {} ", shortCode, url);
                                 throw new UrlNotFoundException("Requested Url is expired");
                             }
                             kafkaProducerService.send(url.getShortUrl());
                             log.info("Returning Url: {}", url);
-                            return UrlMapper.toResponse(url,urlOrigin + urlEndpoint);
+                            return UrlMapper.toResponse(url, urlOrigin + urlEndpoint);
                         }
                 )
                 .orElseThrow(() -> new UrlNotFoundException("Short URL not found"));
     }
 
-    boolean isUrlExpired(Url url){
+    boolean isUrlExpired(Url url) {
         return url.getExpirationTime().isBefore(LocalDateTime.now());
     }
 

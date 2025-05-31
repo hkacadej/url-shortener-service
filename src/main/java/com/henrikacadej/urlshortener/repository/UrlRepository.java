@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface UrlRepository extends JpaRepository<Url, String> {
-    public Optional<Url> findByOriginalUrl(String originalUrl);
+    Optional<Url> findByOriginalUrl(String originalUrl);
 
     @Modifying
     @Query("UPDATE Url e SET e.clickCount = e.clickCount + 1 WHERE e.shortUrl = :shortUrl")

@@ -3,7 +3,6 @@ package com.henrikacadej.urlshortener.handler;
 
 import com.henrikacadej.urlshortener.exception.AuthenticationException;
 import com.henrikacadej.urlshortener.exception.UrlNotFoundException;
-import io.jsonwebtoken.ExpiredJwtException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.FieldError;

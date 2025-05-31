@@ -48,7 +48,7 @@ public class UrlShortenerController {
             }
     )
     @GetMapping("/urls")
-    public ResponseEntity<List<UrlResponse>> getUrlList(){
+    public ResponseEntity<List<UrlResponse>> getUrlList() {
         return ResponseEntity.ok(urlService.getUrlList());
     }
 }

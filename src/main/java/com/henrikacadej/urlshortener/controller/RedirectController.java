@@ -2,7 +2,6 @@ package com.henrikacadej.urlshortener.controller;
 
 import com.henrikacadej.urlshortener.dto.ShortUrlResponse;
 import com.henrikacadej.urlshortener.dto.UrlResponse;
-import com.henrikacadej.urlshortener.exception.UrlNotFoundException;
 import com.henrikacadej.urlshortener.service.UrlService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;

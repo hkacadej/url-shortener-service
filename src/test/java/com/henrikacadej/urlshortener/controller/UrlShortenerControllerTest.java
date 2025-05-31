@@ -1,14 +1,12 @@
 package com.henrikacadej.urlshortener.controller;
 
 
-import com.henrikacadej.urlshortener.dto.AuthenticationRequest;
-import com.henrikacadej.urlshortener.exception.AuthenticationException;
-import com.henrikacadej.urlshortener.handler.GlobalExceptionHandler;
-import com.henrikacadej.urlshortener.service.UrlService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.henrikacadej.urlshortener.dto.ShortUrlRequest;
 import com.henrikacadej.urlshortener.dto.ShortUrlResponse;
 import com.henrikacadej.urlshortener.dto.UrlResponse;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.henrikacadej.urlshortener.handler.GlobalExceptionHandler;
+import com.henrikacadej.urlshortener.service.UrlService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -25,8 +23,10 @@ import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(MockitoExtension.class)
 class UrlShortenerControllerTest {
@@ -99,9 +99,9 @@ class UrlShortenerControllerTest {
     @Test
     void getUrlList_ShouldReturnListOfUrls_WhenCalled() throws Exception {
         // Given
-        UrlResponse url1 = new UrlResponse("abc123","https://example.com",0L);
+        UrlResponse url1 = new UrlResponse("abc123", "https://example.com", 0L);
 
-        UrlResponse url2 = new UrlResponse("def456","https://google.com",0L);
+        UrlResponse url2 = new UrlResponse("def456", "https://google.com", 0L);
 
         List<UrlResponse> urlList = Arrays.asList(url1, url2);
 

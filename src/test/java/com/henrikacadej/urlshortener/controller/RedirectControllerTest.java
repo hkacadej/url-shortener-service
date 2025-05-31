@@ -1,10 +1,10 @@
 package com.henrikacadej.urlshortener.controller;
 
 
+import com.henrikacadej.urlshortener.dto.UrlResponse;
 import com.henrikacadej.urlshortener.exception.UrlNotFoundException;
 import com.henrikacadej.urlshortener.handler.GlobalExceptionHandler;
 import com.henrikacadej.urlshortener.service.UrlService;
-import com.henrikacadej.urlshortener.dto.UrlResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -17,7 +17,8 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(MockitoExtension.class)
 class RedirectControllerTest {
@@ -35,13 +36,14 @@ class RedirectControllerTest {
         mockMvc = MockMvcBuilders
                 .standaloneSetup(redirectController)
                 .setControllerAdvice(new GlobalExceptionHandler())
-                .build();    }
+                .build();
+    }
 
     @Test
     void redirect_ShouldReturnUrlResponse_WhenValidId() throws Exception {
         // Given
         String shortId = "abc123";
-        UrlResponse urlResponse = new UrlResponse(shortId,"https://example.com",0L);
+        UrlResponse urlResponse = new UrlResponse(shortId, "https://example.com", 0L);
 
         when(urlService.getUrl(shortId)).thenReturn(urlResponse);
 

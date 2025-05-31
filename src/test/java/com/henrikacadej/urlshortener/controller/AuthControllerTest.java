@@ -1,12 +1,12 @@
 package com.henrikacadej.urlshortener.controller;
 
-import com.henrikacadej.urlshortener.exception.AuthenticationException;
-import com.henrikacadej.urlshortener.handler.GlobalExceptionHandler;
-import com.henrikacadej.urlshortener.service.AuthService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.henrikacadej.urlshortener.dto.AuthenticationRequest;
 import com.henrikacadej.urlshortener.dto.AuthenticationResponse;
 import com.henrikacadej.urlshortener.dto.RegisterRequest;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.henrikacadej.urlshortener.exception.AuthenticationException;
+import com.henrikacadej.urlshortener.handler.GlobalExceptionHandler;
+import com.henrikacadej.urlshortener.service.AuthService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -20,7 +20,8 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(MockitoExtension.class)
 class AuthControllerTest {
@@ -45,7 +46,7 @@ class AuthControllerTest {
     @Test
     void register_ShouldReturnAuthenticationResponse_WhenValidRequest() throws Exception {
         // Given
-        RegisterRequest request = new RegisterRequest("test@example.com","Test User","password123");
+        RegisterRequest request = new RegisterRequest("test@example.com", "Test User", "password123");
 
         AuthenticationResponse response = new AuthenticationResponse("jwt-token");
 
@@ -64,7 +65,7 @@ class AuthControllerTest {
     @Test
     void register_ShouldReturnBadRequest_WhenInvalidRequest() throws Exception {
         // Given
-        RegisterRequest request = new RegisterRequest("","","");
+        RegisterRequest request = new RegisterRequest("", "", "");
         // Empty request with validation errors
 
         // When & Then
@@ -79,7 +80,7 @@ class AuthControllerTest {
     @Test
     void authenticate_ShouldReturnAuthenticationResponse_WhenValidCredentials() throws Exception {
         // Given
-        AuthenticationRequest request = new AuthenticationRequest("test@example.com","password123");
+        AuthenticationRequest request = new AuthenticationRequest("test@example.com", "password123");
 
         AuthenticationResponse response = new AuthenticationResponse("jwt-token");
 
@@ -98,7 +99,7 @@ class AuthControllerTest {
     @Test
     void authenticate_ShouldReturnBadRequest_WhenInvalidRequest() throws Exception {
         // Given
-        AuthenticationRequest request = new AuthenticationRequest("","");
+        AuthenticationRequest request = new AuthenticationRequest("", "");
 
         // When & Then
         mockMvc.perform(post("/api/auth/v1/login")
@@ -112,7 +113,7 @@ class AuthControllerTest {
     @Test
     void authenticate_ShouldReturnBadRequest_WhenEmailExists() throws Exception {
         // Given
-        AuthenticationRequest request = new AuthenticationRequest("test@example.com","password123");
+        AuthenticationRequest request = new AuthenticationRequest("test@example.com", "password123");
 
         // When & Then
 

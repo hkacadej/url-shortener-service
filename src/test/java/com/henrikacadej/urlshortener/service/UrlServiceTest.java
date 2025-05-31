@@ -28,20 +28,17 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class UrlServiceTest {
 
-    @Mock
-    private UrlRepository urlRepository;
-
-    @Mock
-    private KafkaProducerService kafkaProducerService;
-
-    @InjectMocks
-    private UrlService urlService;
-
     private static final String ORIGINAL_URL = "https://example.com";
     private static final String SHORT_CODE = "abc12345";
     private static final long DEFAULT_EXPIRATION_MINUTES = 60L;
     private static final String URL_ORIGIN = "https://my-origin.com";
     private static final String URL_ENDPOINT = "/r/";
+    @Mock
+    private UrlRepository urlRepository;
+    @Mock
+    private KafkaProducerService kafkaProducerService;
+    @InjectMocks
+    private UrlService urlService;
 
     @BeforeEach
     void setUp() {

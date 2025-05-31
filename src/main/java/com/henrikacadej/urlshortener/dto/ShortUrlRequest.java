@@ -12,4 +12,5 @@ public record ShortUrlRequest(
         )
         String url
 
-) {}
+) {
+}
