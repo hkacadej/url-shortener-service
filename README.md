@@ -34,7 +34,7 @@ Only authenticated users can:
 * View and overwrite expiration times.
 * View click statistics for any URL.
 
-### Intelligent URL Deduplication
+### URL Deduplication
 
 * If the submitted long URL already exists and hasn’t expired, the existing short URL is returned.
 * Its expiration time is **reset** (refreshed).
@@ -46,6 +46,10 @@ Each shortened URL includes an **expiration time**. After expiration, it becomes
 ### Click Tracking via Kafka
 
 Every time a short URL is accessed, the system increments the click count **asynchronously** using **Apache Kafka**.
+
+### Link Expiration
+
+Each short URL created includes an expiration time. Once a link expires, it is not deleted from the system—instead, access to it is forbidden. This ensures that the original click count is preserved .
 
 ### Swagger UI
 
@@ -225,6 +229,8 @@ The minimal Angular frontend provides:
 ---
 
 # Deployment Steps
+
+> **Note:** For demonstration purposes and to simplify project setup, environment variables are included in the repository. In a real-world scenario, sensitive values like secrets and credentials should be managed securely and excluded from version control.
 
 This application depends on **PostgreSQL** and **Kafka** to run properly.
 
