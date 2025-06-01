@@ -17,6 +17,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -234,5 +235,50 @@ class UrlServiceTest {
                 .expirationTime(expirationTime)
                 .clickCount(0L)
                 .build();
+    }
+
+    @Test
+    void incrementClickCount_callsRepository() {
+        String shortUrl = "/abc123";
+
+        urlService.incrementClickCount(shortUrl);
+
+        verify(urlRepository).incrementCounter(shortUrl);
+    }
+
+    @Test
+    void getUrlList_returnsMappedResponseList() {
+        // Prepare dummy Url entities
+        Url url1 = new Url();
+        url1.setShortUrl("/abc123");
+        url1.setOriginalUrl("https://example.com/1");
+        url1.setClickCount(5L);
+
+        Url url2 = new Url();
+        url2.setShortUrl("/def456");
+        url2.setOriginalUrl("https://example.com/2");
+        url2.setClickCount(10L);
+
+        List<Url> urls = List.of(url1, url2);
+
+        // Mock repository method
+        when(urlRepository.findAllNotExpiredNative()).thenReturn(urls);
+
+        // Call service method
+        List<UrlResponse> responses = urlService.getUrlList();
+
+        // Verify repository interaction
+        verify(urlRepository).findAllNotExpiredNative();
+
+        // Assert mapped results
+        assertEquals(2, responses.size());
+
+        assertEquals("https://my-origin", responses.get(0).shortUrl().substring(0, 17));
+        assertEquals("https://example.com/1", responses.get(0).originalUrl());
+        assertEquals(5L, responses.get(0).clickCount());
+
+        assertEquals("https://my-origin", responses.get(1).shortUrl().substring(0, 17));
+        assertEquals("https://example.com/2", responses.get(1).originalUrl());
+        assertEquals(10L, responses.get(1).clickCount());
     }
 }
