@@ -36,9 +36,12 @@ services:
       - kraft-logs:/bitnami/kafka/data
     restart: unless-stopped
 
-  uss:
-    image: uss  # or `image: uss` if already built
-    container_name: uss
+  url-shortener-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: url-shortener-service:latest
+    container_name: url-shortener-service
     env_file: .env
     networks:
       - app-network
@@ -49,17 +52,16 @@ services:
       - kraft-kafka
     restart: unless-stopped
 
-  angular-app:
+  url-shortener-client:
     build:
-      context: ./subfolder-name
+      context: ./url-shortener-client
       dockerfile: Dockerfile
     image: url-shortener-client:latest
     container_name: angular-app-container
     ports:
-      - "8080:80"
+      - "80:80"
     restart: unless-stopped
 
-    # Optional: Add health check
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:80"]
       interval: 30s

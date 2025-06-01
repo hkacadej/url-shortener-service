@@ -21,4 +21,5 @@ export class AuthService {
   register(request: RegisterRequest): Observable<any> {
     return this.http.post(`${this.apiUrl}${environment.registerEndpoint}`, request);
   }
+
 }

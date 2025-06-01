@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { AuthService } from '../../service/auth/auth.service';
 import { AuthRequest } from '../../common/auth-request';
 import { FormsModule } from '@angular/forms';
+import { TokenService } from '../../service/token/token.service';
 
 @Component({
   selector: 'app-login',
@@ -16,7 +17,10 @@ export class LoginComponent {
   password = '';
   errors :String[] = [];
 
-  constructor(private authService:AuthService,private router : Router ){}
+  constructor(private authService:AuthService,
+              private router : Router,
+              private tokenService : TokenService
+            ){}
 
   login() {
     const request: AuthRequest = {
@@ -26,16 +30,18 @@ export class LoginComponent {
 
     this.authService.login(request).subscribe({
       next: (response) => {
-        localStorage.setItem('jwt', response.accessToken);
+        this.tokenService.saveToken(response.accessToken);
         this.router.navigate(['/urls']);
       },
       error: (err) => {
-        if (err.error && typeof err.error === 'object') {
+        if (err.error && err.error.details && typeof err.error.details === 'string') {
+          this.errors = [err.error.details];
+        }else if (err.error && typeof err.error === 'object') {
           this.errors = Object.values(err.error);
         } else if (typeof err.error === 'string') {
           this.errors = [err.error];
         } else {
-          this.errors = ['Invalid email or password'];
+          this.errors = ['Failed to shorten URL'];
         }
       }
     });

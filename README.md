@@ -197,8 +197,8 @@ Redirects to the original long URL corresponding to the shortened ID and trigger
 * **Spring Security + JWT** - Authentication & authorization
 * **Apache Kafka** - Asynchronous click tracking
 * **Swagger / OpenAPI** - API documentation
-* **PostgreSQL / MySQL** - URL persistence (your choice)
-* **Docker** - Containerization (optional)
+* **PostgreSQL** - URL persistence 
+* **Docker** - Containerization 
 * **Angular** - UI
 
 ---
@@ -223,3 +223,134 @@ The minimal Angular frontend provides:
 [http://localhost:8080/swagger-ui/index.html](http://localhost:8080/swagger-ui/index.html)
 
 ---
+
+# Deployment Steps
+
+This application depends on **PostgreSQL** and **Kafka** to run properly.
+
+You can either:
+
+* Run the entire system **automatically** using the provided `docker-compose.yml`,
+* Or **manually start** the required containers and configure your environment.
+
+---
+
+## ⚙️ Prerequisites
+
+1. Create a `.env` file in the root directory of your project with the following environment variables:
+
+```env
+JWT_SECRET=TXlTZWNyZXRLZXlNeVNlY3JldEtleQ==
+JWT_EXPIRATION=600000
+DB_URL=jdbc:postgresql://postgres-db:5432/urlshortener
+DB_USER=myuser
+DB_PASS=mypassword
+KAFKA_SERVER=kraft-kafka:9092
+KAFKA_GROUP_ID=kraft-group
+URL_EXP_MIN=5
+URL_ORIGIN=http://localhost:8080
+URL_ENDPOINT=/r/
+CORS_ORIGIN=http://localhost
+```
+
+> **Note:**
+>
+> * Adjust these properties to match your environment or deployment setup.
+> * `JWT_SECRET` is a base64-encoded secret key for signing JWT tokens.
+> * `DB_URL` points to the PostgreSQL container hostname `postgres-db` (as defined in Docker Compose).
+> * `KAFKA_SERVER` points to Kafka’s advertised hostname and port.
+
+---
+
+## 🚀 Running with Docker Compose (Recommended)
+
+From the root directory of the project, run:
+
+```bash
+docker-compose up --build -d
+```
+
+* This will build (if necessary) and start all required services:
+
+    * **PostgreSQL** database
+    * **Kafka** broker
+    * Your application backend and frontend
+* Containers will run in the background (`-d` for detached mode).
+
+To stop all containers, run:
+
+```bash
+docker-compose down
+```
+
+---
+
+## 🛠 Manual Startup
+
+If you want more control or need to start dependencies manually, follow these steps:
+
+### 1. Start Kafka Container
+
+```bash
+docker run -d \
+  --name kraft-kafka \
+  -p 9092:9092 \
+  -p 9093:9093 \
+  -e KAFKA_KRAFT_BROKER_ID=1 \
+  -e KAFKA_CFG_NODE_ID=1 \
+  -e KAFKA_CFG_PROCESS_ROLES=broker,controller \
+  -e KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=1@localhost:9093 \
+  -e KAFKA_CFG_LISTENERS=PLAINTEXT://:9092,CONTROLLER://:9093 \
+  -e KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://localhost:9092 \
+  -e KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER \
+  -e KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT \
+  -e KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE=true \
+  -e KAFKA_CFG_LOG_DIRS=/bitnami/kafka/data \
+  -v kraft-logs:/bitnami/kafka/data \
+  bitnami/kafka:3.6
+```
+
+### 2. Start PostgreSQL Container
+
+```bash
+docker run -d \
+  --name postgres-db \
+  -p 5432:5432 \
+  -e POSTGRES_DB=urlshortener \
+  -e POSTGRES_USER=myuser \
+  -e POSTGRES_PASSWORD=mypassword \
+  -v pgdata:/var/lib/postgresql/data \
+  postgres:15
+```
+
+---
+
+## ⚙️ Adjust Environment Variables for Local Setup
+
+If running manually (without Docker Compose), update your `.env` or environment file to reflect local hostnames (You can use directly local.env):
+
+```env
+JWT_SECRET=TXlTZWNyZXRLZXlNeVNlY3JldEtleQ==
+JWT_EXPIRATION=600000
+DB_URL=jdbc:postgresql://localhost:5432/urlshortener
+DB_USER=myuser
+DB_PASS=mypassword
+KAFKA_SERVER=http://localhost:9092
+KAFKA_GROUP_ID=kraft-group
+URL_EXP_MIN=5
+URL_ORIGIN=http://localhost:8080
+URL_ENDPOINT=/r/
+CORS_ORIGIN=http://localhost:4200
+```
+
+---
+
+## 🎉 Final Step: Run Application and Frontend
+
+Once Kafka and PostgreSQL are running and your environment variables are properly set, start your backend and Angular frontend applications:
+
+* Backend (URL shortening service) will connect to Kafka and PostgreSQL using the configured environment.
+* Angular frontend will interact with the backend via the exposed endpoints.
+
+---
+

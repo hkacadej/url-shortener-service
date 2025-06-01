@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { RegisterRequest } from '../../common/register-request';
 import { AuthService } from '../../service/auth/auth.service';
 import { FormsModule } from '@angular/forms';
+import { TokenService } from '../../service/token/token.service';
 
 @Component({
   selector: 'app-register',
@@ -17,7 +18,10 @@ export class RegisterComponent {
   errors :String[] = [];
   success = '';
 
-  constructor(private authService: AuthService, private router: Router) {}
+  constructor(private authService: AuthService,
+              private router: Router,
+              private tokenService: TokenService
+            ) {}
 
   register() {
     const request: RegisterRequest = {
@@ -27,18 +31,19 @@ export class RegisterComponent {
     };
 
     this.authService.register(request).subscribe({
-      next: () => {
-        this.success = 'Registration successful!';
-        this.errors = [];
-        this.router.navigate(['/login']);
+      next: (data) => {
+        this.tokenService.saveToken(data.accessToken)
+        this.router.navigate(['/urls']);
       },
       error: (err) => {
-        if (err.error && typeof err.error === 'object') {
+        if (err.error && err.error.details && typeof err.error.details === 'string') {
+          this.errors = [err.error.details];
+        }else if (err.error && typeof err.error === 'object') {
           this.errors = Object.values(err.error);
         } else if (typeof err.error === 'string') {
           this.errors = [err.error];
         } else {
-          this.errors = ['Registration failed'];
+          this.errors = ['Failed to shorten URL'];
         }
       }
     });

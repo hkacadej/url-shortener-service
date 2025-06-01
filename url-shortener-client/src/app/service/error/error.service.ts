@@ -20,7 +20,7 @@ export class ErrorService {
     } else if (typeof err.error === 'string') {
       errors = [err.error];
     } else {
-      errors = ['Failed to shorten URL'];
+      errors = ['Something went Wrong'];
     }
 
     this.showErrorMessages(errors);

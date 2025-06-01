@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
+import { TokenService } from '../../service/token/token.service';
 
 @Component({
   selector: 'app-navbar',
@@ -10,11 +11,11 @@ import { Router } from '@angular/router';
 export class NavbarComponent {
   menuActive = false;
 
-  constructor(private router: Router) {
+  constructor(private router: Router, private tokenService: TokenService) {
   }
 
   get isLoggedIn(): boolean {
-    return !!localStorage.getItem('jwt');  // check if token exists
+    return !!this.tokenService.getToken();
   }
 
   navigate(route: string){
@@ -31,8 +32,8 @@ export class NavbarComponent {
   }
 
   logout() {
-    localStorage.removeItem('jwt'); // remove token
+    this.tokenService.clearToken();
     this.closeMenu();
-    this.router.navigate(['/login']); // redirect to login page
+    this.router.navigate(['/login']);
   }
 }
