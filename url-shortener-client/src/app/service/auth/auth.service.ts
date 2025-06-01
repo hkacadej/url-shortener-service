@@ -4,20 +4,21 @@ import { Observable } from 'rxjs';
 import { AuthResponse } from '../../common/auth-response';
 import { AuthRequest } from '../../common/auth-request';
 import { RegisterRequest } from '../../common/register-request';
+import { environment } from '../../../environment/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-  private apiUrl = 'http://localhost:8080/api/auth/v1'; 
+  private apiUrl = `${environment.apiBaseUrl}${environment.authApi}`;
 
   constructor(private http: HttpClient) {}
 
   login(request: AuthRequest): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${this.apiUrl}/login`,request);
+    return this.http.post<AuthResponse>(`${this.apiUrl}${environment.loginEndpoint}`,request);
   }
 
   register(request: RegisterRequest): Observable<any> {
-    return this.http.post(`${this.apiUrl}/register`, request);
+    return this.http.post(`${this.apiUrl}${environment.registerEndpoint}`, request);
   }
 }

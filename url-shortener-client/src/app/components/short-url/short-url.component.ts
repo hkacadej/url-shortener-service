@@ -1,3 +1,4 @@
+import { ErrorService } from './../../service/error/error.service';
 import { HttpClient } from '@angular/common/http';
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -17,7 +18,7 @@ export class ShortUrlComponent {
   shortUrl = '';
   errors :String[] = [];
 
-  constructor(private http: HttpClient,private urlService: UrlService) {}
+  constructor(private urlService: UrlService,private errorService:ErrorService) {}
 
   shorten() {
 
@@ -32,13 +33,7 @@ export class ShortUrlComponent {
           this.errors = [];
         },
         error: (err) => {
-          if (err.error && typeof err.error === 'object') {
-            this.errors = Object.values(err.error);
-          } else if (typeof err.error === 'string') {
-            this.errors = [err.error];
-          } else {
-            this.errors = ['Failed to shorten URL'];
-          }
+          this.errorService.showErrors(err);
         }
       });
   }

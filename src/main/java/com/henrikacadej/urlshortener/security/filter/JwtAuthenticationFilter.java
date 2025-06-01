@@ -60,7 +60,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             log.debug("Done with JwtAuthenticationFilter for user : {}", username);
             filterChain.doFilter(request, response);
-            filterChain.doFilter(request, response);
         } catch (ExpiredJwtException ex) {
             log.error("Expired JWT token {}", ex.getMessage());
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);

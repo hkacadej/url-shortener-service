@@ -1,0 +1,23 @@
+<div class="shorten-form">
+  <h2>Go to Orinial URL</h2>
+
+  <form  [formGroup]="urlForm" (ngSubmit)="handleRedirectRequest()">
+    <label for="shortUrl">Short URL</label>
+    <input
+      type="text"
+      id="shortUrl"
+      formControlName="shortUrl"
+      name="shortUrl"
+      required
+      placeholder="https://example.com/r/short"
+    />
+
+    <button type="submit">Go To Original</button>
+  </form>
+
+  @if (errors) {
+    @for (error of errors; track $index) {
+      <p class="error" >{{ error }}</p>
+    }
+  }
+</div>

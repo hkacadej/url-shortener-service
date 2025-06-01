@@ -19,6 +19,12 @@
     </button>
     <div [class.active]="menuActive" class="navbar-buttons" role="menu">
       <button
+      (click)="navigate('/redirect')"
+      role="menuitem"
+      tabindex="0"
+      class="nav-btn"
+    >Go To Original Site</button>
+      <button
         (click)="navigate('/shorten')"
         role="menuitem"
         tabindex="0"

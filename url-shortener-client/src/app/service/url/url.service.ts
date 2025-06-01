@@ -4,33 +4,39 @@ import { Injectable } from '@angular/core';
 import { Url } from '../../common/url';
 import { Observable } from 'rxjs';
 import { CreateShortUrlResponse } from '../../common/short-url-response';
+import { ErrorService } from '../error/error.service';
+import { environment } from '../../../environment/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class UrlService {
 
-  constructor(private http: HttpClient) {}
+  private apiUrl = `${environment.apiBaseUrl}${environment.urlApi}`;
+
+  constructor(private http: HttpClient,private errorService: ErrorService) {}
 
   redirectRequest(shortCode: string) {
+    console.log(shortCode)
     this.http.get<Url>(shortCode)
     .subscribe({
       next: (data) => {
         window.open(data.originalUrl, '_blank');
       },
       error: (err) => {
-        //alert('Could not open URL');
         console.error(err);
+        this.errorService.showErrors(err);
       },
     });
   }
 
   getUrls(): Observable<Url[]> {
-    return this.http.get<Url[]>('http://localhost:8080/api/v1/urls');
+    return this.http.get<Url[]>(
+      `${this.apiUrl}${environment.urlListEndpoint}`);
   }
 
   shortenUrl(request:CreateShortUrlRequest): Observable<CreateShortUrlResponse>{
-    return this.http.post<CreateShortUrlResponse>('http://localhost:8080/api/v1/shorten', request);
+    return this.http.post<CreateShortUrlResponse>( `${this.apiUrl}${environment.shortenEndpoint}`, request);
   }
 
 }
