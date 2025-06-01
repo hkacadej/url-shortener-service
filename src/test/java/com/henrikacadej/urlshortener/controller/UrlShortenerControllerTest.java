@@ -147,7 +147,7 @@ class UrlShortenerControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isInternalServerError())
-                .andExpect(jsonPath("$.error").value("An unexpected error occurred : Exception while shortening URL"));
+                .andExpect(jsonPath("$.details").value("An unexpected error occurred : Exception while shortening URL"));
 
     }
 }

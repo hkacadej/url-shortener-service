@@ -2,6 +2,7 @@ package com.henrikacadej.urlshortener.config.security;
 
 import com.henrikacadej.urlshortener.security.filter.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -24,6 +25,8 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
+    @Value("${cors.allowed.origin}")
+    private String allowedOrigin;
 
     @Bean
     public SecurityFilterChain apiSecurityChain(HttpSecurity http, JwtAuthenticationFilter filter) throws Exception {
@@ -65,7 +68,7 @@ public class SecurityConfig {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**")
-                        .allowedOrigins("http://localhost:4200")
+                        .allowedOrigins(allowedOrigin)
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD")
                         .allowCredentials(true);
             }

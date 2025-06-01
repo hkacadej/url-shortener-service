@@ -79,7 +79,7 @@ public class GlobalExceptionHandler {
         log.error("Unhandled exception caught: ", ex);
         return new ErrorResponse(
                 "Internal Server Error",
-                "An unexpected error occurred. Please try again later.",
+                "An unexpected error occurred : " + ex.getMessage(),
                 HttpStatus.INTERNAL_SERVER_ERROR.value(),
                 LocalDateTime.now().toString()
         );

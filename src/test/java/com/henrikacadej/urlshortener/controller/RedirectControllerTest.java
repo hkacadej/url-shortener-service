@@ -76,7 +76,7 @@ class RedirectControllerTest {
         // When & Then
         mockMvc.perform(get("/r/{id}", shortId))
                 .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.error").value("Url not found"));
+                .andExpect(jsonPath("$.details").value("Url not found"));
 
     }
 

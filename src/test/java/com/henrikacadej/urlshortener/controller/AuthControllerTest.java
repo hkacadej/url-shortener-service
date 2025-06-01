@@ -123,7 +123,7 @@ class AuthControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.error").value("Email already registered"));
+                .andExpect(jsonPath("$.details").value("Email already registered"));
 
     }
 
