@@ -115,7 +115,7 @@ public class UrlService {
     public List<UrlResponse> getUrlList() {
 
         return UrlMapper.toResponseList(
-                urlRepository.findAllNotExpiredNative(),
+                urlRepository.findAllByExpirationTimeAfter(LocalDateTime.now()),
                 urlOrigin + urlEndpoint);
     }
 }

@@ -262,13 +262,13 @@ class UrlServiceTest {
         List<Url> urls = List.of(url1, url2);
 
         // Mock repository method
-        when(urlRepository.findAllNotExpiredNative()).thenReturn(urls);
+        when(urlRepository.findAllByExpirationTimeAfter(any(LocalDateTime.class))).thenReturn(urls);
 
         // Call service method
         List<UrlResponse> responses = urlService.getUrlList();
 
         // Verify repository interaction
-        verify(urlRepository).findAllNotExpiredNative();
+        verify(urlRepository).findAllByExpirationTimeAfter(any(LocalDateTime.class));
 
         // Assert mapped results
         assertEquals(2, responses.size());

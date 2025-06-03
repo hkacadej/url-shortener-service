@@ -19,6 +19,4 @@ public interface UrlRepository extends JpaRepository<Url, String> {
 
     List<Url> findAllByExpirationTimeAfter(LocalDateTime now);
 
-    @Query(value = "SELECT * FROM url WHERE expiration_time > NOW()", nativeQuery = true)
-    List<Url> findAllNotExpiredNative();
 }
